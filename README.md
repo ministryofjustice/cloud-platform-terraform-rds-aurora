@@ -1,4 +1,4 @@
-# cloud-platform-terraform-_template_
+# cloud-platform-terraform-rds-aurora
 
 [![Releases](https://img.shields.io/github/release/ministryofjustice/cloud-platform-terraform-template/all.svg?style=flat-square)](https://github.com/ministryofjustice/cloud-platform-terraform-template/releases)
 
@@ -95,7 +95,6 @@ Some of the inputs are tags. All infrastructure resources need to be tagged acco
 
 ## Outputs
 
-_Describe the outputs_
 | Name | Description |
 |------|-------------|
 | rds_instance_endpoint | The connection endpoint in address:port format |
