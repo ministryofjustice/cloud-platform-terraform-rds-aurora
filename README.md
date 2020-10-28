@@ -1,6 +1,6 @@
 # cloud-platform-terraform-rds-aurora
 
-[![Releases](https://img.shields.io/github/release/ministryofjustice/cloud-platform-terraform-template/all.svg?style=flat-square)](https://github.com/ministryofjustice/cloud-platform-terraform-template/releases)
+[![Releases](https://img.shields.io/github/release/ministryofjustice/cloud-platform-terraform-rds-aurora/all.svg?style=flat-square)](https://github.com/ministryofjustice/cloud-platform-terraform-rds-aurora/releases)
 
 Terraform module which creates RDS Aurora resources on AWS.
 
