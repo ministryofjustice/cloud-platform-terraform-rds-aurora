@@ -158,6 +158,7 @@ resource "aws_rds_cluster_instance" "aurora_instances" {
   auto_minor_version_upgrade      = var.auto_minor_version_upgrade
   performance_insights_enabled    = var.performance_insights_enabled
   ca_cert_identifier              = var.ca_cert_identifier
+  copy_tags_to_snapshot           = var.copy_tags_to_snapshot
 
   # Updating engine version forces replacement of instances, and they shouldn't be replaced
   # because cluster will update them if engine version is changed
@@ -178,3 +179,40 @@ resource "aws_rds_cluster_instance" "aurora_instances" {
     cluster_identifier     = local.identifier
   }
 }
+
+resource "aws_iam_user" "user" {
+  name  = "rds-cluster-snapshots-user-${random_id.id.hex}"
+  path  = "/system/rds-cluster-snapshots-user/"
+}
+
+resource "aws_iam_access_key" "user" {
+  user  = aws_iam_user.user.name
+}
+
+data "aws_iam_policy_document" "policy" {
+  statement {
+    actions = [
+      "rds:DescribeDBClusterSnapshots",
+      "rds:DescribeDBClusters",
+      "rds:CopyDBClusterSnapshot",
+      "rds:DeleteDBClusterSnapshot",
+      "rds:DescribeDBClusterSnapshotAttributes",
+      "rds:CreateDBClusterSnapshot",
+      "rds:ModifyDBClusterSnapshotAttribute",
+      "rds:RestoreDBClusterFromSnapshot",
+    ]
+
+    resources = [
+      aws_rds_cluster.aurora.arn,
+      "arn:aws:rds:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:cluster-snapshot:*",
+    ]
+  }
+
+}
+
+resource "aws_iam_user_policy" "policy" {
+  name   = "rds-cluster-snapshots-read-write"
+  policy = data.aws_iam_policy_document.policy.json
+  user   = aws_iam_user.user.name
+}
+
