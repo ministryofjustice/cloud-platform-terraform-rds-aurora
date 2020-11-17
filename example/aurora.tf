@@ -13,8 +13,9 @@ variable "cluster_state_bucket" {
 }
 
 module "aurora_db" {
-  source = "./.."
-
+  source = "https://github.com/ministryofjustice/cloud-platform-terraform-rds-aurora?ref=1.0"
+  cluster_name         = var.cluster_name
+  cluster_state_bucket = var.cluster_state_bucket
   team_name              = "example-team"
   business-unit          = "example-bu"
   application            = "exampleapp"

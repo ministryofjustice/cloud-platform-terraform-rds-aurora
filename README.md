@@ -6,37 +6,8 @@ Terraform module which creates RDS Aurora resources on AWS.
 
 ## Usage
 
+See [this example](example/aurora.tf)
 
-```hcl
-module "example_aurora" {
-  source = "github.com/ministryofjustice/cloud-platform-terraform-rds-aurora?ref=version"
-
-  team_name              = "example-team"
-  business-unit          = "example-bu"
-  application            = "exampleapp"
-  is-production          = "false"
-  namespace              = "my-namespace"
-  environment-name       = "development"
-  infrastructure-support = "example-team@digital.justice.gov.uk"
-
-# https://registry.terraform.io/providers/hashicorp/aws/2.33.0/docs/resources/rds_cluster#engine
-  engine                 = "aurora-postgresql"
-
-# https://registry.terraform.io/providers/hashicorp/aws/2.33.0/docs/resources/rds_cluster#engine_version
-  # engine_version         = "9.6.9"
-
-# https://registry.terraform.io/providers/hashicorp/aws/2.33.0/docs/resources/rds_cluster#engine_mode
-  # engine_mode            = "serverless"
-
-  rds_name               = "aurora-test"
-  replica_count          = 1
-  instance_type          = "db.r4.large"
-  storage_encrypted      = true
-  apply_immediately      = true
-
-}
-
-```
 ## Inputs
 
 | Name | Description | Type | Default | Required |
