@@ -38,8 +38,8 @@ module "aurora_db" {
   # Changing the RDS name requires the RDS to be re-created (destroy + create)
   # rds_name               = "aurora-test"
   replica_count          = 1
-  instance_type          = "db.r4.large"
-  storage_encrypted      = true
+  # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster_instance#instance_class
+  # instance_type          = "db.r4.large"
   apply_immediately      = true
 
 }
