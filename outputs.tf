@@ -11,7 +11,7 @@ output "rds_cluster_reader_endpoint" {
 
 output "rds_instance_endpoint" {
   description = "An instance endpoint connecting the DB instance within an Aurora cluster"
-  value       = aws_rds_cluster_instance.aurora_instances[0].endpoint
+  value       = aws_rds_cluster_instance.aurora_instances.*.endpoint
 }
 
 output "rds_cluster_port" {
