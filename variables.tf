@@ -242,6 +242,11 @@ variable "auto_minor_version_upgrade" {
   default     = true
 }
 
+variable "allow_major_version_upgrade" {
+  description = "Indicates that major version upgrades are allowed."
+  default     = "false"
+}
+
 variable "db_parameter_group_name" {
   description = "The name of a DB parameter group to use"
   type        = string
