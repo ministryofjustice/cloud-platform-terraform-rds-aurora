@@ -156,6 +156,7 @@ resource "aws_rds_cluster_instance" "aurora_instances" {
   preferred_maintenance_window    = var.preferred_maintenance_window
   apply_immediately               = var.apply_immediately
   auto_minor_version_upgrade      = var.auto_minor_version_upgrade
+  allow_major_version_upgrade     = var.allow_major_version_upgrade
   performance_insights_enabled    = var.performance_insights_enabled
   ca_cert_identifier              = var.ca_cert_identifier
   copy_tags_to_snapshot           = var.copy_tags_to_snapshot

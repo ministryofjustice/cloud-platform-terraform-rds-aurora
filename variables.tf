@@ -242,6 +242,12 @@ variable "auto_minor_version_upgrade" {
   default     = true
 }
 
+variable "allow_major_version_upgrade" {
+  description = "Determines whether major engine upgrades will be performed automatically in the maintenance window"
+  type        = bool
+  default     = false
+}
+
 variable "db_parameter_group_name" {
   description = "The name of a DB parameter group to use"
   type        = string
