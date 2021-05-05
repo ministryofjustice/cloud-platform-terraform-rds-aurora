@@ -10,7 +10,7 @@ jobs:
       localstack:
         image: localstack/localstack:latest
         env:
-          SERVICES: iam,sts,rds
+          SERVICES: iam,sts,rds,ec2
           DEFAULT_REGION: eu-west-2
           LOCALSTACK_API_KEY: ${{ secrets.LOCALSTACK_API_KEY }}
         ports:
@@ -22,12 +22,12 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.13
+          go-version: 1.16
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 0.13.x
+          terraform_version: 0.14.x
           terraform_wrapper: false
 
       - name: Download Go Modules
