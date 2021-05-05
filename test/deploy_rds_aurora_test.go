@@ -21,7 +21,7 @@ func TestTerraformAwsRdsAuroraPostgresqlExample(t *testing.T) {
 		TerraformDir: "./unit-tests",
 		Vars: map[string]interface{}{
 			"rds_name":     expectedDBIdentifier,
-			"cluster_name": "localstack-terratest",
+			"cluster_name": "localstack_vpc",
 		},
 		// Environment variables to set when running Terraform
 		EnvVars: map[string]string{
