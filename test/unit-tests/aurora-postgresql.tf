@@ -1,5 +1,5 @@
 
-module "aurora_postgres_db" {
+module "aws_rds_cluster" {
   source = "../.."
   team_name              = "example-team"
   business-unit          = "example-bu"
@@ -13,5 +13,6 @@ module "aurora_postgres_db" {
   engine                 = "aurora-postgresql"
   rds_name = var.rds_name
   cluster_name = var.cluster_name
+  depends_on = [module.vpc]
 }
 
