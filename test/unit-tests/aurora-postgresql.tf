@@ -1,5 +1,5 @@
 
-module "aurora_postgres_db" {
+module "aws_rds_cluster" {
   source = "../.."
   team_name              = "example-team"
   business-unit          = "example-bu"
