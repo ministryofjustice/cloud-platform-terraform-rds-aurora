@@ -9,6 +9,7 @@ data "aws_vpc" "selected" {
     name   = "tag:Name"
     values = [var.cluster_name]
   }
+  
 }
 
 data "aws_subnet_ids" "private" {
