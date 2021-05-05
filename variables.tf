@@ -239,7 +239,7 @@ variable "auto_minor_version_upgrade" {
 }
 
 variable "allow_major_version_upgrade" {
-  description = "Indicates that major version upgrades are allowed."
+  description = "Indicates that major version upgrades are allowed. "
   default     = "false"
 }
 
