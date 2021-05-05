@@ -13,5 +13,6 @@ module "aws_rds_cluster" {
   engine                 = "aurora-postgresql"
   rds_name = var.rds_name
   cluster_name = var.cluster_name
+  depends_on = [module.vpc]
 }
 
