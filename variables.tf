@@ -2,10 +2,6 @@ variable "cluster_name" {
   description = "The name of the cluster (eg.: cloud-platform-live-0)"
 }
 
-variable "cluster_state_bucket" {
-  description = "The name of the S3 bucket holding the terraform state for the cluster"
-}
-
 variable "team_name" {}
 
 variable "application" {}
@@ -240,6 +236,11 @@ variable "auto_minor_version_upgrade" {
   description = "Determines whether minor engine upgrades will be performed automatically in the maintenance window"
   type        = bool
   default     = true
+}
+
+variable "allow_major_version_upgrade" {
+  description = "Indicates that major version upgrades are allowed."
+  default     = "false"
 }
 
 variable "db_parameter_group_name" {
