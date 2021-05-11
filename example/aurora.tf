@@ -9,7 +9,7 @@
 variable "cluster_name" {}
 
 module "aurora_db" {
-  source                 = "../"
+  source                 = "github.com/ministryofjustice/cloud-platform-terraform-rds-aurora?ref=1.2"
   cluster_name           = var.cluster_name
   team_name              = "example-team"
   business-unit          = "example-bu"
