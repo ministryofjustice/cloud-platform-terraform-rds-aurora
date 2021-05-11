@@ -1,16 +1,26 @@
 data "aws_caller_identity" "current" {}
-
 data "aws_region" "current" {}
 
-data "terraform_remote_state" "cluster" {
-  backend = "s3"
-
-  config = {
-    bucket = var.cluster_state_bucket
-    region = "eu-west-1"
-    key    = "cloud-platform/${var.cluster_name}/terraform.tfstate"
+data "aws_vpc" "selected" {
+  filter {
+    name   = "tag:Name"
+    values = [var.cluster_name]
   }
 }
+
+data "aws_subnet_ids" "private" {
+  vpc_id = data.aws_vpc.selected.id
+
+  tags = {
+    SubnetType = "Private"
+  }
+}
+
+data "aws_subnet" "private" {
+  for_each = data.aws_subnet_ids.private.ids
+  id       = each.value
+}
+
 
 resource "random_id" "id" {
   byte_length = 8
@@ -55,7 +65,7 @@ resource "aws_kms_alias" "alias" {
 
 resource "aws_db_subnet_group" "db_subnet" {
   name       = local.identifier
-  subnet_ids = data.terraform_remote_state.cluster.outputs.internal_subnets_ids
+  subnet_ids = data.aws_subnet_ids.private.ids
 
   tags = {
     business-unit          = var.business-unit
@@ -71,7 +81,7 @@ resource "aws_db_subnet_group" "db_subnet" {
 resource "aws_security_group" "rds-sg" {
   name        = local.identifier
   description = "Allow all inbound traffic"
-  vpc_id      = data.terraform_remote_state.cluster.outputs.vpc_id
+  vpc_id      = data.aws_vpc.selected.id
 
   // We cannot use `${aws_db_instance.rds.port}` here because it creates a
   // cyclic dependency. Rather than resorting to `aws_security_group_rule` which
@@ -81,43 +91,43 @@ resource "aws_security_group" "rds-sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = data.terraform_remote_state.cluster.outputs.internal_subnets
+    cidr_blocks = [for s in data.aws_subnet.private : s.cidr_block]
   }
 
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = data.terraform_remote_state.cluster.outputs.internal_subnets
+    cidr_blocks = [for s in data.aws_subnet.private : s.cidr_block]
   }
 }
 
 resource "aws_rds_cluster" "aurora" {
 
-  cluster_identifier                  = local.identifier
-  replication_source_identifier       = var.replication_source_identifier
-  engine                              = var.engine
-  engine_mode                         = var.engine_mode
-  engine_version                      = var.engine_version
-  database_name                       = local.db_name
-  master_username                     = "cp${random_string.username.result}"
-  master_password                     = random_password.password.result
-  final_snapshot_identifier           = "${local.identifier}-finalsnapshot"
-  kms_key_id                          = aws_kms_key.kms.arn
-  skip_final_snapshot                 = var.skip_final_snapshot
-  deletion_protection                 = var.deletion_protection
-  backup_retention_period             = var.backup_retention_period
-  preferred_backup_window             = var.preferred_backup_window
-  preferred_maintenance_window        = var.preferred_maintenance_window
-  port                                = local.port
-  db_subnet_group_name                = aws_db_subnet_group.db_subnet.name
-  vpc_security_group_ids              = [aws_security_group.rds-sg.id]
-  snapshot_identifier                 = var.snapshot_identifier
-  storage_encrypted                   = var.storage_encrypted
-  apply_immediately                   = var.apply_immediately
-  db_cluster_parameter_group_name     = var.db_cluster_parameter_group_name
-  backtrack_window                    = local.backtrack_window
-  copy_tags_to_snapshot               = var.copy_tags_to_snapshot
+  cluster_identifier              = local.identifier
+  replication_source_identifier   = var.replication_source_identifier
+  engine                          = var.engine
+  engine_mode                     = var.engine_mode
+  engine_version                  = var.engine_version
+  database_name                   = local.db_name
+  master_username                 = "cp${random_string.username.result}"
+  master_password                 = random_password.password.result
+  final_snapshot_identifier       = "${local.identifier}-finalsnapshot"
+  kms_key_id                      = aws_kms_key.kms.arn
+  skip_final_snapshot             = var.skip_final_snapshot
+  deletion_protection             = var.deletion_protection
+  backup_retention_period         = var.backup_retention_period
+  preferred_backup_window         = var.preferred_backup_window
+  preferred_maintenance_window    = var.preferred_maintenance_window
+  port                            = local.port
+  db_subnet_group_name            = aws_db_subnet_group.db_subnet.name
+  vpc_security_group_ids          = [aws_security_group.rds-sg.id]
+  snapshot_identifier             = var.snapshot_identifier
+  storage_encrypted               = var.storage_encrypted
+  apply_immediately               = var.apply_immediately
+  db_cluster_parameter_group_name = var.db_cluster_parameter_group_name
+  backtrack_window                = local.backtrack_window
+  copy_tags_to_snapshot           = var.copy_tags_to_snapshot
 
   dynamic "scaling_configuration" {
     for_each = length(keys(var.scaling_configuration)) == 0 ? [] : [var.scaling_configuration]
@@ -130,6 +140,7 @@ resource "aws_rds_cluster" "aurora" {
       timeout_action           = lookup(scaling_configuration.value, "timeout_action", null)
     }
   }
+
   tags = {
     business-unit          = var.business-unit
     application            = var.application
@@ -145,20 +156,20 @@ resource "aws_rds_cluster" "aurora" {
 resource "aws_rds_cluster_instance" "aurora_instances" {
   count = var.replica_scale_enabled ? var.replica_scale_min : var.replica_count
 
-  identifier                      = length(var.instances_parameters) > count.index ? lookup(var.instances_parameters[count.index], "instance_name", "${local.identifier}-${count.index + 1}") : "${local.identifier}-${count.index + 1}"
-  cluster_identifier              = aws_rds_cluster.aurora.id
-  engine                          = var.engine
-  engine_version                  = var.engine_version
-  instance_class                  = var.instance_type
-  publicly_accessible             = var.publicly_accessible
-  db_subnet_group_name            = aws_db_subnet_group.db_subnet.name
-  db_parameter_group_name         = var.db_parameter_group_name
-  preferred_maintenance_window    = var.preferred_maintenance_window
-  apply_immediately               = var.apply_immediately
-  auto_minor_version_upgrade      = var.auto_minor_version_upgrade
-  performance_insights_enabled    = var.performance_insights_enabled
-  ca_cert_identifier              = var.ca_cert_identifier
-  copy_tags_to_snapshot           = var.copy_tags_to_snapshot
+  identifier                   = length(var.instances_parameters) > count.index ? lookup(var.instances_parameters[count.index], "instance_name", "${local.identifier}-${count.index + 1}") : "${local.identifier}-${count.index + 1}"
+  cluster_identifier           = aws_rds_cluster.aurora.id
+  engine                       = var.engine
+  engine_version               = var.engine_version
+  instance_class               = var.instance_type
+  publicly_accessible          = var.publicly_accessible
+  db_subnet_group_name         = aws_db_subnet_group.db_subnet.name
+  db_parameter_group_name      = var.db_parameter_group_name
+  preferred_maintenance_window = var.preferred_maintenance_window
+  apply_immediately            = var.apply_immediately
+  auto_minor_version_upgrade   = var.auto_minor_version_upgrade
+  performance_insights_enabled = var.performance_insights_enabled
+  ca_cert_identifier           = var.ca_cert_identifier
+  copy_tags_to_snapshot        = var.copy_tags_to_snapshot
 
   # Updating engine version forces replacement of instances, and they shouldn't be replaced
   # because cluster will update them if engine version is changed
@@ -181,12 +192,12 @@ resource "aws_rds_cluster_instance" "aurora_instances" {
 }
 
 resource "aws_iam_user" "user" {
-  name  = "rds-cluster-snapshots-user-${random_id.id.hex}"
-  path  = "/system/rds-cluster-snapshots-user/"
+  name = "rds-cluster-snapshots-user-${random_id.id.hex}"
+  path = "/system/rds-cluster-snapshots-user/"
 }
 
 resource "aws_iam_access_key" "user" {
-  user  = aws_iam_user.user.name
+  user = aws_iam_user.user.name
 }
 
 data "aws_iam_policy_document" "policy" {
