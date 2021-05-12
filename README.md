@@ -53,6 +53,7 @@ No Modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| allow\_major\_version\_upgrade | Determines whether major engine upgrades will be performed automatically in the maintenance window | `bool` | `false` | no |
 | application | n/a | `any` | n/a | yes |
 | apply\_immediately | Determines whether or not any DB modifications are applied immediately, or during the maintenance window | `bool` | `false` | no |
 | auto\_minor\_version\_upgrade | Determines whether minor engine upgrades will be performed automatically in the maintenance window | `bool` | `true` | no |

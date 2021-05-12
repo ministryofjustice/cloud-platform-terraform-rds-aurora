@@ -103,31 +103,31 @@ resource "aws_security_group" "rds-sg" {
 }
 
 resource "aws_rds_cluster" "aurora" {
-
-  cluster_identifier              = local.identifier
-  replication_source_identifier   = var.replication_source_identifier
-  engine                          = var.engine
-  engine_mode                     = var.engine_mode
-  engine_version                  = var.engine_version
-  database_name                   = local.db_name
-  master_username                 = "cp${random_string.username.result}"
-  master_password                 = random_password.password.result
-  final_snapshot_identifier       = "${local.identifier}-finalsnapshot"
-  kms_key_id                      = aws_kms_key.kms.arn
-  skip_final_snapshot             = var.skip_final_snapshot
-  deletion_protection             = var.deletion_protection
-  backup_retention_period         = var.backup_retention_period
-  preferred_backup_window         = var.preferred_backup_window
-  preferred_maintenance_window    = var.preferred_maintenance_window
-  port                            = local.port
-  db_subnet_group_name            = aws_db_subnet_group.db_subnet.name
-  vpc_security_group_ids          = [aws_security_group.rds-sg.id]
-  snapshot_identifier             = var.snapshot_identifier
-  storage_encrypted               = var.storage_encrypted
-  apply_immediately               = var.apply_immediately
-  db_cluster_parameter_group_name = var.db_cluster_parameter_group_name
-  backtrack_window                = local.backtrack_window
-  copy_tags_to_snapshot           = var.copy_tags_to_snapshot
+  cluster_identifier                  = local.identifier
+  replication_source_identifier       = var.replication_source_identifier
+  engine                              = var.engine
+  engine_mode                         = var.engine_mode
+  engine_version                      = var.engine_version
+  database_name                       = local.db_name
+  master_username                     = "cp${random_string.username.result}"
+  master_password                     = random_password.password.result
+  final_snapshot_identifier           = "${local.identifier}-finalsnapshot"
+  kms_key_id                          = aws_kms_key.kms.arn
+  skip_final_snapshot                 = var.skip_final_snapshot
+  deletion_protection                 = var.deletion_protection
+  backup_retention_period             = var.backup_retention_period
+  preferred_backup_window             = var.preferred_backup_window
+  preferred_maintenance_window        = var.preferred_maintenance_window
+  port                                = local.port
+  db_subnet_group_name                = aws_db_subnet_group.db_subnet.name
+  vpc_security_group_ids              = [aws_security_group.rds-sg.id]
+  snapshot_identifier                 = var.snapshot_identifier
+  storage_encrypted                   = var.storage_encrypted
+  apply_immediately                   = var.apply_immediately
+  allow_major_version_upgrade     = var.allow_major_version_upgrade
+  db_cluster_parameter_group_name     = var.db_cluster_parameter_group_name
+  backtrack_window                    = local.backtrack_window
+  copy_tags_to_snapshot               = var.copy_tags_to_snapshot
 
   dynamic "scaling_configuration" {
     for_each = length(keys(var.scaling_configuration)) == 0 ? [] : [var.scaling_configuration]
