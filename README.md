@@ -53,10 +53,10 @@ No Modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| allow\_major\_version\_upgrade | Determines whether major engine upgrades will be performed automatically in the maintenance window | `bool` | `false` | no |
 | application | n/a | `any` | n/a | yes |
 | apply\_immediately | Determines whether or not any DB modifications are applied immediately, or during the maintenance window | `bool` | `false` | no |
 | auto\_minor\_version\_upgrade | Determines whether minor engine upgrades will be performed automatically in the maintenance window | `bool` | `true` | no |
-| allow\_major\_version\_upgrade | Determines whether major engine upgrades will be performed automatically in the maintenance window | `bool` | `true` | no |
 | backtrack\_window | The target backtrack window, in seconds. Only available for aurora engine currently. To disable backtracking, set this value to 0. Defaults to 0. Must be between 0 and 259200 (72 hours) | `number` | `0` | no |
 | backup\_retention\_period | How long to keep backups for (in days) | `number` | `7` | no |
 | business-unit | Area of the MOJ responsible for the service | `string` | `""` | no |
