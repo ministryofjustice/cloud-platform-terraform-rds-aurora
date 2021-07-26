@@ -256,7 +256,7 @@ variable "scaling_configuration" {
   default     = {}
 }
 
-variable "skip_setting_name" {
+variable "skip_setting_when_migrated" {
   description = "Setting a database name on a replica creates a loop because Aurora tries to change terraform's random string to the source name + some other random string"
   type        = bool
   default     = false
