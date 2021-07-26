@@ -97,6 +97,7 @@ No Modules.
 | replication\_source\_identifier | ARN of a source DB cluster or DB instance if this DB cluster is to be created as a Read Replica. | `string` | `""` | no |
 | scaling\_configuration | Map of nested attributes with scaling properties. Only valid when engine\_mode is set to `serverless` | `map(string)` | `{}` | no |
 | skip\_final\_snapshot | Should a final snapshot be created on cluster destroy | `bool` | `false` | no |
+| skip\_setting\_name | Setting a database name on a replica creates a loop because Aurora tries to change terraform's random string to the source name + some other random string | `bool` | `false` | no |
 | snapshot\_identifier | DB snapshot to create this database from | `string` | `""` | no |
 | storage\_encrypted | Specifies whether the underlying storage layer should be encrypted | `bool` | `true` | no |
 | team\_name | n/a | `any` | n/a | yes |
