@@ -108,7 +108,7 @@ resource "aws_rds_cluster" "aurora" {
   engine                              = var.engine
   engine_mode                         = var.engine_mode
   engine_version                      = var.engine_version
-  database_name                       = local.db_name
+  database_name                       = var.skip_setting_name ? null : local.db_name
   master_username                     = "cp${random_string.username.result}"
   master_password                     = random_password.password.result
   final_snapshot_identifier           = "${local.identifier}-finalsnapshot"
