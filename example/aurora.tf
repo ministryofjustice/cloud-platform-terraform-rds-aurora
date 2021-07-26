@@ -37,8 +37,9 @@ module "aurora_db" {
   # instance_type          = "db.r4.large"
   apply_immediately = true
 
+  # set this for a replica
+  # skip_setting_name = true
 }
-
 
 resource "kubernetes_secret" "aurora_db" {
   metadata {
