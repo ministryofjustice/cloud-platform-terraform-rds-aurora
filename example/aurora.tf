@@ -37,8 +37,8 @@ module "aurora_db" {
   # instance_type          = "db.r4.large"
   apply_immediately = true
 
-  # set this for a replica
-  # skip_setting_name = true
+  # set this for a migrated replica (eg from RDS Postgres)
+  # skip_setting_when_migrated = true
 }
 
 resource "kubernetes_secret" "aurora_db" {
