@@ -9,7 +9,9 @@
 variable "cluster_name" {}
 
 module "aurora_db" {
-  source                 = "github.com/ministryofjustice/cloud-platform-terraform-rds-aurora?ref=1.2"
+  # always check the latest release in Github and set below
+  source                 = "../"
+  # source                 = "github.com/ministryofjustice/cloud-platform-terraform-rds-aurora?ref=1.6"
   cluster_name           = var.cluster_name
   team_name              = "example-team"
   business-unit          = "example-bu"
@@ -37,8 +39,9 @@ module "aurora_db" {
   # instance_type          = "db.r4.large"
   apply_immediately = true
 
+  # set this for a migrated replica (eg from RDS Postgres)
+  # skip_setting_when_migrated = true
 }
-
 
 resource "kubernetes_secret" "aurora_db" {
   metadata {
