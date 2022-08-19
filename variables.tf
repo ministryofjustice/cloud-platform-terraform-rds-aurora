@@ -1,28 +1,44 @@
 variable "cluster_name" {
   description = "The name of the cluster (eg.: cloud-platform-live-0)"
+  type        = string
 }
 
-variable "team_name" {}
+variable "team_name" {
+  description = "Team name"
+  type        = string
+}
 
-variable "application" {}
+variable "application" {
+  description = "Application name"
+  type        = string
+}
 
-variable "environment-name" {}
+variable "environment-name" {
+  description = "Environment name"
+  type        = string
+}
 
 variable "is-production" {
-  default = "false"
+  default     = "false"
+  description = "Whether this cluster is production or not"
+  type        = string
 }
 
 variable "namespace" {
-  default = ""
+  default     = ""
+  type        = string
+  description = "Namespace name"
 }
 
 variable "business-unit" {
   description = "Area of the MOJ responsible for the service"
   default     = ""
+  type        = string
 }
 
 variable "infrastructure-support" {
   description = "The team responsible for managing the infrastructure. Should be of the form <team-name> (<team-email>)"
+  type        = string
 }
 
 variable "engine" {
@@ -41,12 +57,6 @@ variable "replica_count" {
   description = "Number of reader nodes to create.  If `replica_scale_enable` is `true`, the value of `replica_scale_min` is used instead."
   type        = number
   default     = 1
-}
-
-variable "instance_type_replica" {
-  description = "Instance type to use at replica instance"
-  type        = string
-  default     = null
 }
 
 variable "instance_type" {
@@ -82,29 +92,19 @@ variable "db_cluster_parameter_group_name" {
 variable "db_name" {
   description = "The name of the database to be created on the instance (if empty, it will be the generated random identifier)"
   default     = ""
-}
-
-variable "replicate_source_db" {
-  description = "Specifies that this resource is a Replicate database, and to use this value as the source database. This correlates to the identifier of another Amazon RDS Database to replicate."
   type        = string
-  default     = ""
 }
 
 variable "rds_name" {
   description = "Optional name of the RDS cluster. Changing the name will re-create the RDS"
   default     = ""
+  type        = string
 }
 
 variable "engine_mode" {
   description = "The database engine mode. Valid values: global, parallelquery, provisioned, serverless, multimaster."
   type        = string
   default     = "provisioned"
-}
-
-variable "enable_http_endpoint" {
-  description = "Whether or not to enable the Data API for a serverless Aurora database engine."
-  type        = bool
-  default     = false
 }
 
 variable "skip_final_snapshot" {
@@ -149,12 +149,6 @@ variable "snapshot_identifier" {
   default     = ""
 }
 
-variable "iam_database_authentication_enabled" {
-  description = "Specifies whether IAM Database authentication should be enabled or not. Not all versions and instances are supported. Refer to the AWS documentation to see which versions are supported."
-  type        = bool
-  default     = false
-}
-
 variable "backtrack_window" {
   description = "The target backtrack window, in seconds. Only available for aurora engine currently. To disable backtracking, set this value to 0. Defaults to 0. Must be between 0 and 259200 (72 hours)"
   type        = number
@@ -165,12 +159,6 @@ variable "copy_tags_to_snapshot" {
   description = "Copy all Cluster tags to snapshots."
   type        = bool
   default     = true
-}
-
-variable "enabled_cloudwatch_logs_exports" {
-  description = "List of log types to export to cloudwatch"
-  type        = list(string)
-  default     = []
 }
 
 variable "replication_source_identifier" {
@@ -185,45 +173,22 @@ variable "replica_scale_enabled" {
   default     = false
 }
 
-variable "replica_scale_max" {
-  description = "Maximum number of replicas to allow scaling for"
-  type        = number
-  default     = 0
-}
-
 variable "replica_scale_min" {
   description = "Minimum number of replicas to allow scaling for"
   type        = number
   default     = 2
 }
 
-variable "replica_scale_cpu" {
-  description = "CPU usage to trigger autoscaling at"
-  type        = number
-  default     = 70
-}
-
-variable "replica_scale_connections" {
-  description = "Average number of connections to trigger autoscaling at. Default value is 70% of db.r4.large's default max_connections"
-  type        = number
-  default     = 700
-}
-
 variable "ca_cert_identifier" {
   description = "Specifies the identifier of the CA certificate for the DB instance"
   default     = "rds-ca-2019"
+  type        = string
 }
 
 variable "performance_insights_enabled" {
   description = "Specifies whether Performance Insights is enabled or not."
   type        = bool
   default     = false
-}
-
-variable "performance_insights_kms_key_id" {
-  description = "The ARN for the KMS key to encrypt Performance Insights data."
-  type        = string
-  default     = ""
 }
 
 variable "instances_parameters" {
