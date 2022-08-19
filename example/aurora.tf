@@ -10,7 +10,7 @@ variable "cluster_name" {}
 
 module "aurora_db" {
   # always check the latest release in Github and set below
-  source                 = "../"
+  source = "../"
   # source                 = "github.com/ministryofjustice/cloud-platform-terraform-rds-aurora?ref=1.6"
   cluster_name           = var.cluster_name
   team_name              = "example-team"
