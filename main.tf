@@ -8,19 +8,20 @@ data "aws_vpc" "selected" {
   }
 }
 
-data "aws_subnet_ids" "private" {
-  vpc_id = data.aws_vpc.selected.id
+data "aws_subnets" "private" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.selected.id]
+  }
 
   tags = {
     SubnetType = "Private"
   }
 }
-
 data "aws_subnet" "private" {
-  for_each = data.aws_subnet_ids.private.ids
+  for_each = toset(data.aws_subnets.private.ids)
   id       = each.value
 }
-
 
 resource "random_id" "id" {
   byte_length = 8
@@ -65,7 +66,7 @@ resource "aws_kms_alias" "alias" {
 
 resource "aws_db_subnet_group" "db_subnet" {
   name       = local.identifier
-  subnet_ids = data.aws_subnet_ids.private.ids
+  subnet_ids = data.aws_subnets.private.ids
 
   tags = {
     business-unit          = var.business-unit
