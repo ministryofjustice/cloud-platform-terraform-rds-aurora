@@ -110,7 +110,6 @@ No modules.
 | <a name="output_rds_instance_endpoint"></a> [rds\_instance\_endpoint](#output\_rds\_instance\_endpoint) | An instance endpoint connecting the DB instance within an Aurora cluster |
 | <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id) | RDS Resource ID - used for performance insights (metrics) |
 | <a name="output_secret_access_key"></a> [secret\_access\_key](#output\_secret\_access\_key) | Secret key for RDS IAM user |
-
 <!-- END_TF_DOCS -->
 
 ## Tags
