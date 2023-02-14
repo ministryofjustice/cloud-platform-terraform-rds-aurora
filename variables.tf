@@ -3,44 +3,6 @@ variable "vpc_name" {
   type        = string
 }
 
-variable "team_name" {
-  description = "Team name"
-  type        = string
-}
-
-variable "application" {
-  description = "Application name"
-  type        = string
-}
-
-variable "environment-name" {
-  description = "Environment name"
-  type        = string
-}
-
-variable "is-production" {
-  default     = "false"
-  description = "Whether this cluster is production or not"
-  type        = string
-}
-
-variable "namespace" {
-  default     = ""
-  type        = string
-  description = "Namespace name"
-}
-
-variable "business-unit" {
-  description = "Area of the MOJ responsible for the service"
-  default     = ""
-  type        = string
-}
-
-variable "infrastructure-support" {
-  description = "The team responsible for managing the infrastructure. Should be of the form <team-name> (<team-email>)"
-  type        = string
-}
-
 variable "engine" {
   description = "Aurora database engine type, currently aurora, aurora-mysql or aurora-postgresql"
   type        = string

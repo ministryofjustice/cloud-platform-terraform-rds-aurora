@@ -8,10 +8,9 @@ output "rds_cluster_reader_endpoint" {
   value       = aws_rds_cluster.aurora.reader_endpoint
 }
 
-
 output "rds_instance_endpoint" {
   description = "An instance endpoint connecting the DB instance within an Aurora cluster"
-  value       = aws_rds_cluster_instance.aurora_instances.*.endpoint
+  value       = aws_rds_cluster_instance.aurora_instances[*].endpoint
 }
 
 output "rds_cluster_port" {
@@ -46,11 +45,11 @@ output "resource_id" {
 
 output "access_key_id" {
   description = "Access key id for RDS IAM user"
-  value       = join("", aws_iam_access_key.user.*.id)
+  value       = join("", aws_iam_access_key.user[*].id)
 
 }
 
 output "secret_access_key" {
   description = "Secret key for RDS IAM user"
-  value       = join("", aws_iam_access_key.user.*.secret)
+  value       = join("", aws_iam_access_key.user[*].secret)
 }

@@ -18,6 +18,7 @@ data "aws_subnets" "private" {
     SubnetType = "Private"
   }
 }
+
 data "aws_subnet" "private" {
   for_each = toset(data.aws_subnets.private.ids)
   id       = each.value
@@ -32,7 +33,6 @@ locals {
   db_name          = var.db_name != "" ? var.db_name : "db${random_id.id.hex}"
   port             = var.port == "" ? var.engine == "aurora-postgresql" ? "5432" : "3306" : var.port
   backtrack_window = (var.engine == "aurora-mysql" || var.engine == "aurora") && var.engine_mode != "serverless" ? var.backtrack_window : 0
-
 }
 
 resource "random_string" "username" {
@@ -47,16 +47,6 @@ resource "random_password" "password" {
 
 resource "aws_kms_key" "kms" {
   description = local.identifier
-
-  tags = {
-    business-unit          = var.business-unit
-    application            = var.application
-    is-production          = var.is-production
-    environment-name       = var.environment-name
-    owner                  = var.team_name
-    infrastructure-support = var.infrastructure-support
-    namespace              = var.namespace
-  }
 }
 
 resource "aws_kms_alias" "alias" {
@@ -67,16 +57,6 @@ resource "aws_kms_alias" "alias" {
 resource "aws_db_subnet_group" "db_subnet" {
   name       = local.identifier
   subnet_ids = data.aws_subnets.private.ids
-
-  tags = {
-    business-unit          = var.business-unit
-    application            = var.application
-    is-production          = var.is-production
-    environment-name       = var.environment-name
-    owner                  = var.team_name
-    infrastructure-support = var.infrastructure-support
-    namespace              = var.namespace
-  }
 }
 
 resource "aws_security_group" "rds-sg" {
@@ -143,14 +123,7 @@ resource "aws_rds_cluster" "aurora" {
   }
 
   tags = {
-    business-unit          = var.business-unit
-    application            = var.application
-    is-production          = var.is-production
-    environment-name       = var.environment-name
-    owner                  = var.team_name
-    infrastructure-support = var.infrastructure-support
-    namespace              = var.namespace
-    cluster_identifier     = local.identifier
+    cluster_identifier = local.identifier
   }
 }
 
@@ -181,14 +154,7 @@ resource "aws_rds_cluster_instance" "aurora_instances" {
   }
 
   tags = {
-    business-unit          = var.business-unit
-    application            = var.application
-    is-production          = var.is-production
-    environment-name       = var.environment-name
-    owner                  = var.team_name
-    infrastructure-support = var.infrastructure-support
-    namespace              = var.namespace
-    cluster_identifier     = local.identifier
+    cluster_identifier = local.identifier
   }
 }
 
@@ -227,4 +193,3 @@ resource "aws_iam_user_policy" "policy" {
   policy = data.aws_iam_policy_document.policy.json
   user   = aws_iam_user.user.name
 }
-

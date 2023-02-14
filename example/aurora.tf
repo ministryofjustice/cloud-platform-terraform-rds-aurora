@@ -1,25 +1,15 @@
-
-
 /*
  * When using this module through the cloud-platform-environments, the following
  * two variables are automatically supplied by the pipeline.
  *
  */
-
 variable "vpc_name" {}
 
 module "aurora_db" {
   # always check the latest release in Github and set below
   source = "../"
   # source                 = "github.com/ministryofjustice/cloud-platform-terraform-rds-aurora?ref=1.9"
-  vpc_name           = var.vpc_name
-  team_name              = "example-team"
-  business-unit          = "example-bu"
-  application            = "exampleapp"
-  is-production          = "false"
-  namespace              = "my-namespace"
-  environment-name       = "development"
-  infrastructure-support = "example-team@digital.justice.gov.uk"
+  vpc_name               = var.vpc_name
 
   # https://registry.terraform.io/providers/hashicorp/aws/2.33.0/docs/resources/rds_cluster#engine
   engine = "aurora-postgresql"
