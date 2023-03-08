@@ -19,20 +19,17 @@ variable "environment-name" {
 }
 
 variable "is-production" {
-  default     = "false"
   description = "Whether this cluster is production or not"
   type        = string
 }
 
 variable "namespace" {
-  default     = ""
   type        = string
   description = "Namespace name"
 }
 
 variable "business-unit" {
   description = "Area of the MOJ responsible for the service"
-  default     = ""
   type        = string
 }
 
