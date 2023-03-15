@@ -12,7 +12,7 @@ module "aurora_db" {
   # always check the latest release in Github and set below
   source = "../"
   # source                 = "github.com/ministryofjustice/cloud-platform-terraform-rds-aurora?ref=1.9"
-  vpc_name           = var.vpc_name
+  vpc_name               = var.vpc_name
   team_name              = "example-team"
   business-unit          = "example-bu"
   application            = "exampleapp"

@@ -1,3 +1,18 @@
+locals {
+  default_tags = {
+    # Mandatory
+    business-unit = var.business-unit
+    application   = var.application
+    is-production = var.is-production
+    owner         = var.team_name
+    namespace     = var.namespace # for billing and identification purposes
+
+    # Optional
+    environment-name       = var.environment-name
+    infrastructure-support = var.infrastructure-support
+  }
+}
+
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
@@ -48,15 +63,7 @@ resource "random_password" "password" {
 resource "aws_kms_key" "kms" {
   description = local.identifier
 
-  tags = {
-    business-unit          = var.business-unit
-    application            = var.application
-    is-production          = var.is-production
-    environment-name       = var.environment-name
-    owner                  = var.team_name
-    infrastructure-support = var.infrastructure-support
-    namespace              = var.namespace
-  }
+  tags = local.default_tags
 }
 
 resource "aws_kms_alias" "alias" {
@@ -68,15 +75,7 @@ resource "aws_db_subnet_group" "db_subnet" {
   name       = local.identifier
   subnet_ids = data.aws_subnets.private.ids
 
-  tags = {
-    business-unit          = var.business-unit
-    application            = var.application
-    is-production          = var.is-production
-    environment-name       = var.environment-name
-    owner                  = var.team_name
-    infrastructure-support = var.infrastructure-support
-    namespace              = var.namespace
-  }
+  tags = local.default_tags
 }
 
 resource "aws_security_group" "rds-sg" {
@@ -101,6 +100,8 @@ resource "aws_security_group" "rds-sg" {
     protocol    = "-1"
     cidr_blocks = [for s in data.aws_subnet.private : s.cidr_block]
   }
+
+  tags = local.default_tags
 }
 
 resource "aws_rds_cluster" "aurora" {
@@ -142,16 +143,9 @@ resource "aws_rds_cluster" "aurora" {
     }
   }
 
-  tags = {
-    business-unit          = var.business-unit
-    application            = var.application
-    is-production          = var.is-production
-    environment-name       = var.environment-name
-    owner                  = var.team_name
-    infrastructure-support = var.infrastructure-support
-    namespace              = var.namespace
-    cluster_identifier     = local.identifier
-  }
+  tags = merge(local.default_tags, {
+    cluster_identifier = local.identifier
+  })
 }
 
 resource "aws_rds_cluster_instance" "aurora_instances" {
@@ -180,21 +174,16 @@ resource "aws_rds_cluster_instance" "aurora_instances" {
     ]
   }
 
-  tags = {
-    business-unit          = var.business-unit
-    application            = var.application
-    is-production          = var.is-production
-    environment-name       = var.environment-name
-    owner                  = var.team_name
-    infrastructure-support = var.infrastructure-support
-    namespace              = var.namespace
-    cluster_identifier     = local.identifier
-  }
+  tags = merge(local.default_tags, {
+    cluster_identifier = local.identifier
+  })
 }
 
 resource "aws_iam_user" "user" {
   name = "rds-cluster-snapshots-user-${random_id.id.hex}"
   path = "/system/rds-cluster-snapshots-user/"
+
+  tags = local.default_tags
 }
 
 resource "aws_iam_access_key" "user" {
