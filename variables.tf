@@ -218,6 +218,12 @@ variable "scaling_configuration" {
   default     = {}
 }
 
+variable "serverlessv2_scaling_configuration" {
+  description = "Map of nested attributes with scaling properties (`max_capacity`, `min_capacity`) for Aurora Serverless v2. Only valid when engine mode is set to `provisioned`. The `instance_type` variable must also be set to `db.serverless`"
+  type        = map(string)
+  default     = {}
+}
+
 variable "skip_setting_when_migrated" {
   description = "Setting a database name on a replica creates a loop because Aurora tries to change terraform's random string to the source name + some other random string"
   type        = bool

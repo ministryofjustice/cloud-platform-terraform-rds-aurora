@@ -143,6 +143,15 @@ resource "aws_rds_cluster" "aurora" {
     }
   }
 
+  dynamic "serverlessv2_scaling_configuration" {
+    for_each = length(keys(var.serverlessv2_scaling_configuration)) == 0 ? [] : [var.serverlessv2_scaling_configuration]
+
+    content {
+      max_capacity = lookup(serverlessv2_scaling_configuration.value, "max_capacity", null)
+      min_capacity = lookup(serverlessv2_scaling_configuration.value, "min_capacity", null)
+    }
+  }
+
   tags = merge(local.default_tags, {
     cluster_identifier = local.identifier
   })
