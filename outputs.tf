@@ -54,3 +54,7 @@ output "secret_access_key" {
   description = "Secret key for RDS IAM user"
   value       = join("", aws_iam_access_key.user.*.secret)
 }
+
+output "irsa_policy_arn" {
+  value = aws_iam_policy.irsa.arn
+}
