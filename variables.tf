@@ -36,12 +36,6 @@ variable "publicly_accessible" {
   default     = false
 }
 
-variable "storage_encrypted" {
-  description = "Specifies whether the underlying storage layer should be encrypted"
-  type        = bool
-  default     = true
-}
-
 variable "apply_immediately" {
   description = "Determines whether or not any DB modifications are applied immediately, or during the maintenance window"
   type        = bool
@@ -56,12 +50,6 @@ variable "db_cluster_parameter_group_name" {
 
 variable "db_name" {
   description = "The name of the database to be created on the instance (if empty, it will be the generated random identifier)"
-  default     = ""
-  type        = string
-}
-
-variable "rds_name" {
-  description = "Optional name of the RDS cluster. Changing the name will re-create the RDS"
   default     = ""
   type        = string
 }
