@@ -43,7 +43,7 @@ resource "random_id" "id" {
 }
 
 locals {
-  identifier       = var.rds_name != "" ? var.rds_name : "cloud-platform-${random_id.id.hex}"
+  identifier       = "cloud-platform-${random_id.id.hex}"
   db_name          = var.db_name != "" ? var.db_name : "db${random_id.id.hex}"
   port             = var.port == "" ? var.engine == "aurora-postgresql" ? "5432" : "3306" : var.port
   backtrack_window = (var.engine == "aurora-mysql" || var.engine == "aurora") && var.engine_mode != "serverless" ? var.backtrack_window : 0
@@ -124,7 +124,7 @@ resource "aws_rds_cluster" "aurora" {
   db_subnet_group_name            = aws_db_subnet_group.db_subnet.name
   vpc_security_group_ids          = [aws_security_group.rds-sg.id]
   snapshot_identifier             = var.snapshot_identifier
-  storage_encrypted               = var.storage_encrypted
+  storage_encrypted               = true
   apply_immediately               = var.apply_immediately
   allow_major_version_upgrade     = var.allow_major_version_upgrade
   db_cluster_parameter_group_name = var.db_cluster_parameter_group_name
