@@ -1,40 +1,8 @@
+#################
+# Configuration #
+#################
 variable "vpc_name" {
   description = "The name of the vpc (eg.: live-1)"
-  type        = string
-}
-
-variable "team_name" {
-  description = "Team name"
-  type        = string
-}
-
-variable "application" {
-  description = "Application name"
-  type        = string
-}
-
-variable "environment-name" {
-  description = "Environment name"
-  type        = string
-}
-
-variable "is-production" {
-  description = "Whether this cluster is production or not"
-  type        = string
-}
-
-variable "namespace" {
-  type        = string
-  description = "Namespace name"
-}
-
-variable "business-unit" {
-  description = "Area of the MOJ responsible for the service"
-  type        = string
-}
-
-variable "infrastructure-support" {
-  description = "The team responsible for managing the infrastructure. Should be of the form <team-name> (<team-email>)"
   type        = string
 }
 
@@ -228,4 +196,42 @@ variable "skip_setting_when_migrated" {
   description = "Setting a database name on a replica creates a loop because Aurora tries to change terraform's random string to the source name + some other random string"
   type        = bool
   default     = false
+}
+
+########
+# Tags #
+########
+variable "business_unit" {
+  description = "Area of the MOJ responsible for the service"
+  type        = string
+}
+
+variable "application" {
+  description = "Application name"
+  type        = string
+}
+
+variable "is_production" {
+  description = "Whether this is used for production or not"
+  type        = string
+}
+
+variable "team_name" {
+  description = "Team name"
+  type        = string
+}
+
+variable "namespace" {
+  description = "Namespace name"
+  type        = string
+}
+
+variable "environment_name" {
+  description = "Environment name"
+  type        = string
+}
+
+variable "infrastructure_support" {
+  description = "The team responsible for managing the infrastructure. Should be of the form <team-name> (<team-email>)"
+  type        = string
 }

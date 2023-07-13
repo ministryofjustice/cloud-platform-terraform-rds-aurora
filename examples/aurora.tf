@@ -1,46 +1,24 @@
-
-
-/*
- * When using this module through the cloud-platform-environments, the following
- * two variables are automatically supplied by the pipeline.
- *
- */
-
-variable "vpc_name" {}
-
-module "aurora_db" {
-  # always check the latest release in Github and set below
+module "rds_aurora" {
   source = "../"
-  # source                 = "github.com/ministryofjustice/cloud-platform-terraform-rds-aurora?ref=1.9"
-  vpc_name               = var.vpc_name
-  team_name              = "example-team"
-  business-unit          = "example-bu"
-  application            = "exampleapp"
-  is-production          = "false"
-  namespace              = "my-namespace"
-  environment-name       = "development"
-  infrastructure-support = "example-team@digital.justice.gov.uk"
 
-  # https://registry.terraform.io/providers/hashicorp/aws/2.33.0/docs/resources/rds_cluster#engine
-  engine = "aurora-postgresql"
+  # VPC configuration
+  vpc_name = var.vpc_name
 
-  # https://registry.terraform.io/providers/hashicorp/aws/2.33.0/docs/resources/rds_cluster#engine_version
-  # engine_version         = "9.6.9"
+  # Database configuration
+  engine         = "aurora-postgresql"
+  engine_version = "14.6"
+  engine_mode    = "provisioned"
+  instance_type  = "db.t4g.medium"
+  replica_count  = 1
 
-  # https://registry.terraform.io/providers/hashicorp/aws/2.33.0/docs/resources/rds_cluster#engine_mode
-  # engine_mode            = "serverless"
-
-
-  # If the rds_name is not specified a random name will be generated ( cloud-platform-* )
-  # Changing the RDS name requires the RDS to be re-created (destroy + create)
-  # rds_name               = "aurora-test"
-  replica_count = 1
-  # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster_instance#instance_class
-  # instance_type          = "db.r4.large"
-  apply_immediately = true
-
-  # set this for a migrated replica (eg from RDS Postgres)
-  # skip_setting_when_migrated = true
+  # Tags
+  business_unit          = var.business_unit
+  application            = var.application
+  is_production          = var.is_production
+  team_name              = var.team_name
+  namespace              = var.namespace
+  environment_name       = var.environment
+  infrastructure_support = var.infrastructure_support
 }
 
 resource "kubernetes_secret" "aurora_db" {
@@ -50,13 +28,11 @@ resource "kubernetes_secret" "aurora_db" {
   }
 
   data = {
-    rds_cluster_endpoint        = module.aurora_db.rds_cluster_endpoint
-    rds_cluster_reader_endpoint = module.aurora_db.rds_cluster_reader_endpoint
-    db_cluster_identifier       = module.aurora_db.db_cluster_identifier
-    database_name               = module.aurora_db.database_name
-    database_username           = module.aurora_db.database_username
-    database_password           = module.aurora_db.database_password
-    access_key_id               = module.aurora_db.access_key_id
-    secret_access_key           = module.aurora_db.secret_access_key
+    rds_cluster_endpoint        = module.rds_aurora.rds_cluster_endpoint
+    rds_cluster_reader_endpoint = module.rds_aurora.rds_cluster_reader_endpoint
+    db_cluster_identifier       = module.rds_aurora.db_cluster_identifier
+    database_name               = module.rds_aurora.database_name
+    database_username           = module.rds_aurora.database_username
+    database_password           = module.rds_aurora.database_password
   }
 }
