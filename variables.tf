@@ -36,12 +36,6 @@ variable "publicly_accessible" {
   default     = false
 }
 
-variable "apply_immediately" {
-  description = "Determines whether or not any DB modifications are applied immediately, or during the maintenance window"
-  type        = bool
-  default     = false
-}
-
 variable "db_cluster_parameter_group_name" {
   description = "The name of a DB Cluster parameter group to use"
   type        = string
@@ -106,12 +100,6 @@ variable "backtrack_window" {
   description = "The target backtrack window, in seconds. Only available for aurora engine currently. To disable backtracking, set this value to 0. Defaults to 0. Must be between 0 and 259200 (72 hours)"
   type        = number
   default     = 0
-}
-
-variable "copy_tags_to_snapshot" {
-  description = "Copy all Cluster tags to snapshots."
-  type        = bool
-  default     = true
 }
 
 variable "replication_source_identifier" {

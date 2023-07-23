@@ -1,4 +1,12 @@
 locals {
+  # Generic configuration
+  identifier       = "cloud-platform-${random_id.id.hex}"
+  vpc_name         = (var.vpc_name == "live") ? "live-1" : var.vpc_name
+  db_name          = (var.db_name != "") ? var.db_name : "db${random_id.id.hex}"
+  port             = (var.port == "") ? (var.engine == "aurora-postgresql") ? "5432" : "3306" : var.port
+  backtrack_window = (var.engine == "aurora-mysql" || var.engine == "aurora") && var.engine_mode != "serverless" ? var.backtrack_window : 0
+
+  # Tags
   default_tags = {
     # Mandatory
     business-unit = var.business_unit
@@ -13,41 +21,47 @@ locals {
   }
 }
 
-data "aws_caller_identity" "current" {}
+##################
+# Get AWS region #
+##################
 data "aws_region" "current" {}
 
-data "aws_vpc" "selected" {
+###########################
+# Get account information #
+###########################
+data "aws_caller_identity" "current" {}
+
+#######################
+# Get VPC information #
+#######################
+data "aws_vpc" "this" {
   filter {
     name   = "tag:Name"
-    values = [var.vpc_name == "live" ? "live-1" : var.vpc_name]
+    values = [local.vpc_name]
   }
 }
 
 data "aws_subnets" "private" {
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.selected.id]
+    values = [data.aws_vpc.this.id]
   }
 
   tags = {
     SubnetType = "Private"
   }
 }
+
 data "aws_subnet" "private" {
   for_each = toset(data.aws_subnets.private.ids)
   id       = each.value
 }
 
+########################
+# Generate identifiers #
+########################
 resource "random_id" "id" {
   byte_length = 8
-}
-
-locals {
-  identifier       = "cloud-platform-${random_id.id.hex}"
-  db_name          = var.db_name != "" ? var.db_name : "db${random_id.id.hex}"
-  port             = var.port == "" ? var.engine == "aurora-postgresql" ? "5432" : "3306" : var.port
-  backtrack_window = (var.engine == "aurora-mysql" || var.engine == "aurora") && var.engine_mode != "serverless" ? var.backtrack_window : 0
-
 }
 
 resource "random_string" "username" {
@@ -60,6 +74,9 @@ resource "random_password" "password" {
   special = false
 }
 
+#########################
+# Create encryption key #
+#########################
 resource "aws_kms_key" "kms" {
   description = local.identifier
 
@@ -71,17 +88,13 @@ resource "aws_kms_alias" "alias" {
   target_key_id = aws_kms_key.kms.key_id
 }
 
-resource "aws_db_subnet_group" "db_subnet" {
-  name       = local.identifier
-  subnet_ids = data.aws_subnets.private.ids
-
-  tags = local.default_tags
-}
-
+##########################
+# Create Security Groups #
+##########################
 resource "aws_security_group" "rds-sg" {
   name        = local.identifier
   description = "Allow all inbound traffic"
-  vpc_id      = data.aws_vpc.selected.id
+  vpc_id      = data.aws_vpc.this.id
 
   # We cannot use `${aws_db_instance.rds.port}` here because it creates a
   # cyclic dependency. Rather than resorting to `aws_security_group_rule` which
@@ -100,6 +113,16 @@ resource "aws_security_group" "rds-sg" {
     protocol    = "-1"
     cidr_blocks = [for s in data.aws_subnet.private : s.cidr_block]
   }
+
+  tags = local.default_tags
+}
+
+#########################
+# Create Aurora cluster #
+#########################
+resource "aws_db_subnet_group" "db_subnet" {
+  name       = local.identifier
+  subnet_ids = data.aws_subnets.private.ids
 
   tags = local.default_tags
 }
@@ -125,11 +148,11 @@ resource "aws_rds_cluster" "aurora" {
   vpc_security_group_ids          = [aws_security_group.rds-sg.id]
   snapshot_identifier             = var.snapshot_identifier
   storage_encrypted               = true
-  apply_immediately               = var.apply_immediately
+  apply_immediately               = true
   allow_major_version_upgrade     = var.allow_major_version_upgrade
   db_cluster_parameter_group_name = var.db_cluster_parameter_group_name
   backtrack_window                = local.backtrack_window
-  copy_tags_to_snapshot           = var.copy_tags_to_snapshot
+  copy_tags_to_snapshot           = true
 
   dynamic "scaling_configuration" {
     for_each = length(keys(var.scaling_configuration)) == 0 ? [] : [var.scaling_configuration]
@@ -169,11 +192,11 @@ resource "aws_rds_cluster_instance" "aurora_instances" {
   db_subnet_group_name         = aws_db_subnet_group.db_subnet.name
   db_parameter_group_name      = var.db_parameter_group_name
   preferred_maintenance_window = var.preferred_maintenance_window
-  apply_immediately            = var.apply_immediately
+  apply_immediately            = true
   auto_minor_version_upgrade   = var.auto_minor_version_upgrade
   performance_insights_enabled = var.performance_insights_enabled
   ca_cert_identifier           = var.ca_cert_identifier
-  copy_tags_to_snapshot        = var.copy_tags_to_snapshot
+  copy_tags_to_snapshot        = true
 
   # Updating engine version forces replacement of instances, and they shouldn't be replaced
   # because cluster will update them if engine version is changed
