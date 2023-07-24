@@ -44,17 +44,6 @@ output "resource_id" {
   value       = aws_rds_cluster.aurora.cluster_resource_id
 }
 
-output "access_key_id" {
-  description = "Access key id for RDS IAM user"
-  value       = join("", aws_iam_access_key.user.*.id)
-
-}
-
-output "secret_access_key" {
-  description = "Secret key for RDS IAM user"
-  value       = join("", aws_iam_access_key.user.*.secret)
-}
-
 output "irsa_policy_arn" {
   value = aws_iam_policy.irsa.arn
 }
