@@ -211,45 +211,6 @@ resource "aws_rds_cluster_instance" "aurora_instances" {
   })
 }
 
-# Legacy long-lived credentials
-resource "aws_iam_user" "user" {
-  name = "rds-cluster-snapshots-user-${random_id.id.hex}"
-  path = "/system/rds-cluster-snapshots-user/"
-
-  tags = local.default_tags
-}
-
-resource "aws_iam_access_key" "user" {
-  user = aws_iam_user.user.name
-}
-
-data "aws_iam_policy_document" "policy" {
-  statement {
-    actions = [
-      "rds:DescribeDBClusterSnapshots",
-      "rds:DescribeDBClusters",
-      "rds:CopyDBClusterSnapshot",
-      "rds:DeleteDBClusterSnapshot",
-      "rds:DescribeDBClusterSnapshotAttributes",
-      "rds:CreateDBClusterSnapshot",
-      "rds:ModifyDBClusterSnapshotAttribute",
-      "rds:RestoreDBClusterFromSnapshot",
-    ]
-
-    resources = [
-      aws_rds_cluster.aurora.arn,
-      "arn:aws:rds:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:cluster-snapshot:*",
-    ]
-  }
-
-}
-
-resource "aws_iam_user_policy" "policy" {
-  name   = "rds-cluster-snapshots-read-write"
-  policy = data.aws_iam_policy_document.policy.json
-  user   = aws_iam_user.user.name
-}
-
 # Short-lived credentials (IRSA)
 data "aws_iam_policy_document" "irsa" {
   version = "2012-10-17"
