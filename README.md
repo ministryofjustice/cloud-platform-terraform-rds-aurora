@@ -2,7 +2,7 @@
 
 [![Releases](https://img.shields.io/github/v/release/ministryofjustice/cloud-platform-terraform-rds-aurora.svg)](https://github.com/ministryofjustice/cloud-platform-terraform-rds-aurora/releases)
 
-This Terraform module will creates an [Amazon Aurora](https://aws.amazon.com/rds/aurora/) database for use on the Cloud Platform.
+This Terraform module will create an [Amazon Aurora](https://aws.amazon.com/rds/aurora/) database for use on the Cloud Platform.
 
 ## Usage
 
