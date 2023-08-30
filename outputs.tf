@@ -8,10 +8,9 @@ output "rds_cluster_reader_endpoint" {
   value       = aws_rds_cluster.aurora.reader_endpoint
 }
 
-
 output "rds_instance_endpoint" {
   description = "An instance endpoint connecting the DB instance within an Aurora cluster"
-  value       = aws_rds_cluster_instance.aurora_instances.*.endpoint
+  value       = aws_rds_cluster_instance.aurora_instances[*].endpoint
 }
 
 output "rds_cluster_port" {
@@ -45,5 +44,6 @@ output "resource_id" {
 }
 
 output "irsa_policy_arn" {
-  value = aws_iam_policy.irsa.arn
+  description = "IAM policy ARN for access to create database snapshots"
+  value       = aws_iam_policy.irsa.arn
 }

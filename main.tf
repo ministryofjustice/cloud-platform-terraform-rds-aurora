@@ -216,6 +216,8 @@ data "aws_iam_policy_document" "irsa" {
   version = "2012-10-17"
 
   statement {
+    sid    = "AllowRDSAccessFor${random_id.id.hex}"
+    effect = "Allow"
     actions = [
       "rds:DescribeDBClusterSnapshots",
       "rds:DescribeDBClusters",
