@@ -1,6 +1,7 @@
 module "rds_aurora" {
-  source = "../"
-
+  source = "../" # use latest release
+  # source = "github.com/ministryofjustice/cloud-platform-terraform-rds-aurora?ref=version" # use latest release
+  
   # VPC configuration
   vpc_name = var.vpc_name
 
