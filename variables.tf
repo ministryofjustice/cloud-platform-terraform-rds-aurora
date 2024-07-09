@@ -122,7 +122,7 @@ variable "replica_scale_min" {
 
 variable "ca_cert_identifier" {
   description = "Specifies the identifier of the CA certificate for the DB instance"
-  default     = "rds-ca-2019"
+  default     = "rds-ca-rsa2048-g1"
   type        = string
 }
 
