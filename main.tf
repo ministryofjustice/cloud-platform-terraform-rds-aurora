@@ -6,6 +6,15 @@ locals {
   port             = (var.port == "") ? (var.engine == "aurora-postgresql") ? "5432" : "3306" : var.port
   backtrack_window = (var.engine == "aurora-mysql" || var.engine == "aurora") && var.engine_mode != "serverless" ? var.backtrack_window : 0
 
+  # engine-to-export log configuration mappings
+  db_log_export_mappings = {
+    aurora-postgresql = ["postgresql"], 
+    aurora-mysql      = ["audit", "error", "general", "slowquery"]
+  }
+
+  # Retrieve logs from user-selected engine
+  log_exports = var.opt_in_xsiam_logging ? lookup(local.db_log_export_mappings, var.engine, []) : []
+
   # Tags
   default_tags = {
     # Mandatory
@@ -118,9 +127,9 @@ resource "aws_security_group" "rds-sg" {
   # is not ideal for managing rules, we will simply allow traffic to all ports.
   # This does not compromise security as the instance only listens on one port.
   ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
     cidr_blocks = concat(
       [for s in data.aws_subnet.private : s.cidr_block],
       [for s in data.aws_subnet.eks_private : s.cidr_block]
@@ -128,9 +137,9 @@ resource "aws_security_group" "rds-sg" {
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
     cidr_blocks = concat(
       [for s in data.aws_subnet.private : s.cidr_block],
       [for s in data.aws_subnet.eks_private : s.cidr_block]
@@ -176,6 +185,7 @@ resource "aws_rds_cluster" "aurora" {
   db_cluster_parameter_group_name = var.db_cluster_parameter_group_name
   backtrack_window                = local.backtrack_window
   copy_tags_to_snapshot           = true
+  enabled_cloudwatch_logs_exports = local.log_exports
 
   dynamic "scaling_configuration" {
     for_each = length(keys(var.scaling_configuration)) == 0 ? [] : [var.scaling_configuration]
@@ -198,9 +208,18 @@ resource "aws_rds_cluster" "aurora" {
     }
   }
 
+  lifecycle {
+    precondition {
+      condition     = !(var.engine == "aurora-mysql" && var.opt_in_xsiam_logging && (var.db_cluster_parameter_group_name == null || var.db_cluster_parameter_group_name == ""))
+      error_message = "You must provide a db_cluster_parameter_group_name with the parameters set in the /examples folder when enabling XSIAM Cortex logs for MYSQL Aurora."
+    }
+ }
+
   tags = merge(local.default_tags, {
     cluster_identifier = local.identifier
   })
+
+  depends_on = [aws_cloudwatch_log_subscription_filter.rds_aurora_logs_to_firehose]
 }
 
 resource "aws_rds_cluster_instance" "aurora_instances" {
@@ -265,3 +284,32 @@ resource "aws_iam_policy" "irsa" {
   policy = data.aws_iam_policy_document.irsa.json
   tags   = local.default_tags
 }
+
+data "aws_iam_roles" "cloudwatch_to_firehose" {
+  name_regex = "cloud-platform-cloudwatch-to-firehose20250912120805499500000001"
+}
+
+data "aws_kinesis_firehose_delivery_stream" "rds_aurora_log_stream" {
+  name = "cloudwatch-export-180af1363ef3510a"
+}
+
+resource "aws_cloudwatch_log_group" "rds_aurora_cloudwatch_logs" {
+  for_each = var.opt_in_xsiam_logging ? toset(local.log_exports) : []
+
+  name              = "/aws/rds/cluster/${local.identifier}/${each.key}"
+  retention_in_days = 14
+  tags              = local.default_tags
+}
+
+resource "aws_cloudwatch_log_subscription_filter" "rds_aurora_logs_to_firehose" {
+  for_each = var.opt_in_xsiam_logging ? aws_cloudwatch_log_group.rds_aurora_cloudwatch_logs : {}
+
+  name            = "${local.identifier}-${each.key}-firehose"
+  log_group_name  = "/aws/rds/cluster/${local.identifier}/${each.key}"
+  filter_pattern  = ""
+  destination_arn = data.aws_kinesis_firehose_delivery_stream.rds_aurora_log_stream.arn
+  role_arn        = length(data.aws_iam_roles.cloudwatch_to_firehose.arns) > 0 ? tolist(data.aws_iam_roles.cloudwatch_to_firehose.arns)[0] : null
+
+  depends_on = [aws_cloudwatch_log_group.rds_aurora_cloudwatch_logs]
+}
+

@@ -122,6 +122,10 @@ aws rds create-db-cluster-snapshot
 
 See the [examples/](examples/) folder for more information.
 
+## Enabling Logging to XSIAM Cortex
+
+If you are required to stream logs to XSIAM Cortex for security auditing, you can do so by setting `opt_in_xsiam_logging` variable to true. In the case of mysql Aurora engines, you will need to create a parameter group and pass in the 'db_cluster_parameter_group_name' var. Please ensure the parameters defined in the /examples folder are set, with 'apply_method' for each as "immediate"
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -146,6 +150,8 @@ No modules.
 
 | Name | Type |
 |------|------|
+| [aws_cloudwatch_log_group.rds_aurora_cloudwatch_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
+| [aws_cloudwatch_log_subscription_filter.rds_aurora_logs_to_firehose](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter) | resource |
 | [aws_db_subnet_group.db_subnet](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_subnet_group) | resource |
 | [aws_iam_policy.irsa](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_kms_alias.alias](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
@@ -156,6 +162,8 @@ No modules.
 | [random_id.id](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
 | [random_password.password](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
 | [random_string.username](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
+| [aws_iam_roles.cloudwatch_to_firehose](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_roles) | data source |
+| [aws_kinesis_firehose_delivery_stream.rds_aurora_log_stream](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kinesis_firehose_delivery_stream) | data source |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.irsa](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
@@ -205,6 +213,7 @@ No modules.
 | <a name="input_snapshot_identifier"></a> [snapshot\_identifier](#input\_snapshot\_identifier) | DB snapshot to create this database from | `string` | `""` | no |
 | <a name="input_team_name"></a> [team\_name](#input\_team\_name) | Team name | `string` | n/a | yes |
 | <a name="input_vpc_name"></a> [vpc\_name](#input\_vpc\_name) | The name of the vpc (eg.: live-1) | `string` | n/a | yes |
+| <a name="input_opt_in_xsiam_logging"></a> [opt\_in\_xsiam\_logging](#input\_opt\_in\_xsiam\_logging) | If set to true, it will create Cloudwatch log groups for the RDS Aurora instance and send them to Cortex XSIAM. For MYSQL engines, you must also pass in a 'db_cluster_parameter_group_name' var, with logging parameters set (see 'Enabling Logging to XSIAM Cortex' section above and the /examples folder) | `bool` | `false` | no |
 
 ## Outputs
 
