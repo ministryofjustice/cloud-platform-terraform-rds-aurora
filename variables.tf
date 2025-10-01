@@ -37,7 +37,7 @@ variable "publicly_accessible" {
 }
 
 variable "db_cluster_parameter_group_name" {
-  description = "The name of a DB Cluster parameter group to use"
+  description = "The name of a DB Cluster parameter group to use. If you are enabling XSIAM Cortex logging for MYSQL Aurora, you must include the parameters set in the /examples folder"
   type        = string
   default     = null
 }
@@ -170,6 +170,16 @@ variable "serverlessv2_scaling_configuration" {
 
 variable "skip_setting_when_migrated" {
   description = "Setting a database name on a replica creates a loop because Aurora tries to change terraform's random string to the source name + some other random string"
+  type        = bool
+  default     = false
+}
+
+###########
+# logging #
+###########
+
+variable "opt_in_xsiam_logging" {
+  description = "If set to true, it will create Cloudwatch log groups for the RDS Aurora instance and send them to Cortex XSIAM. For MYSQL engines, you must also pass in a 'db_cluster_parameter_group_name' var, with logging parameters set (see 'Enabling Logging to XSIAM Cortex' section in README)"
   type        = bool
   default     = false
 }
