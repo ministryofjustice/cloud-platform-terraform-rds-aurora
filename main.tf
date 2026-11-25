@@ -261,6 +261,7 @@ data "aws_iam_policy_document" "irsa" {
     sid    = "AllowRDSAccessFor${random_id.id.hex}"
     effect = "Allow"
     actions = [
+      "rds:AddTagsToResource",
       "rds:DescribeDBClusterSnapshots",
       "rds:DescribeDBClusters",
       "rds:CopyDBClusterSnapshot",
@@ -274,6 +275,18 @@ data "aws_iam_policy_document" "irsa" {
     resources = [
       aws_rds_cluster.aurora.arn,
       "arn:aws:rds:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:cluster-snapshot:*",
+    ]
+  }
+
+  statement {
+    sid    = "AllowRDSDescribeEngineOptions${random_id.id.hex}"
+    effect = "Allow"
+    actions = [
+      "rds:DescribeDBEngineVersions",
+      "rds:DescribeOrderableDBInstanceOptions",
+    ]
+
+    resources = ["*",
     ]
   }
 }
